@@ -1,6 +1,7 @@
 package rejson
 
 import (
+	"context"
 	"github.com/nitishm/go-rejson/v4/rjs"
 )
 
@@ -15,45 +16,45 @@ func NewReJSONHandler() *Handler {
 
 // ReJSON provides an interface for various Go Redis Clients to implement ReJSON commands
 type ReJSON interface {
-	JSONSet(key, path string, obj interface{}, opts ...rjs.SetOption) (res interface{}, err error)
+	JSONSet(ctx context.Context, key, path string, obj interface{}, opts ...rjs.SetOption) (res interface{}, err error)
 
-	JSONGet(key, path string, opts ...rjs.GetOption) (res interface{}, err error)
+	JSONGet(ctx context.Context, key, path string, opts ...rjs.GetOption) (res interface{}, err error)
 
-	JSONMGet(path string, keys ...string) (res interface{}, err error)
+	JSONMGet(ctx context.Context, path string, keys ...string) (res interface{}, err error)
 
-	JSONDel(key, path string) (res interface{}, err error)
+	JSONDel(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONType(key, path string) (res interface{}, err error)
+	JSONType(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONNumIncrBy(key, path string, number int) (res interface{}, err error)
+	JSONNumIncrBy(ctx context.Context, key, path string, number int) (res interface{}, err error)
 
-	JSONNumMultBy(key, path string, number int) (res interface{}, err error)
+	JSONNumMultBy(ctx context.Context, key, path string, number int) (res interface{}, err error)
 
-	JSONStrAppend(key, path string, jsonstring string) (res interface{}, err error)
+	JSONStrAppend(ctx context.Context, key, path string, jsonstring string) (res interface{}, err error)
 
-	JSONStrLen(key, path string) (res interface{}, err error)
+	JSONStrLen(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONArrAppend(key, path string, values ...interface{}) (res interface{}, err error)
+	JSONArrAppend(ctx context.Context, key, path string, values ...interface{}) (res interface{}, err error)
 
-	JSONArrLen(key, path string) (res interface{}, err error)
+	JSONArrLen(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONArrPop(key, path string, index int) (res interface{}, err error)
+	JSONArrPop(ctx context.Context, key, path string, index int) (res interface{}, err error)
 
-	JSONArrIndex(key, path string, jsonValue interface{}, optionalRange ...int) (res interface{}, err error)
+	JSONArrIndex(ctx context.Context, key, path string, jsonValue interface{}, optionalRange ...int) (res interface{}, err error)
 
-	JSONArrTrim(key, path string, start, end int) (res interface{}, err error)
+	JSONArrTrim(ctx context.Context, key, path string, start, end int) (res interface{}, err error)
 
-	JSONArrInsert(key, path string, index int, values ...interface{}) (res interface{}, err error)
+	JSONArrInsert(ctx context.Context, key, path string, index int, values ...interface{}) (res interface{}, err error)
 
-	JSONObjKeys(key, path string) (res interface{}, err error)
+	JSONObjKeys(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONObjLen(key, path string) (res interface{}, err error)
+	JSONObjLen(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONDebug(subCmd rjs.DebugSubCommand, key, path string) (res interface{}, err error)
+	JSONDebug(ctx context.Context, subCmd rjs.DebugSubCommand, key, path string) (res interface{}, err error)
 
-	JSONForget(key, path string) (res interface{}, err error)
+	JSONForget(ctx context.Context, key, path string) (res interface{}, err error)
 
-	JSONResp(key, path string) (res interface{}, err error)
+	JSONResp(ctx context.Context, key, path string) (res interface{}, err error)
 }
 
 // JSONSet used to set a json object
@@ -62,13 +63,13 @@ type ReJSON interface {
 //
 //	JSON.SET <key> <path> <json>
 //			 [NX | XX]
-func (r *Handler) JSONSet(key string, path string, obj interface{}, opts ...rjs.SetOption) (
+func (r *Handler) JSONSet(ctx context.Context, key string, path string, obj interface{}, opts ...rjs.SetOption) (
 	res interface{}, err error,
 ) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONSet(key, path, obj, opts...)
+	return r.implementation.JSONSet(ctx, key, path, obj, opts...)
 }
 
 // JSONGet used to get a json object
@@ -81,11 +82,11 @@ func (r *Handler) JSONSet(key string, path string, obj interface{}, opts ...rjs.
 //			[SPACE space-string]
 //			[NOESCAPE]
 //			[path ...]
-func (r *Handler) JSONGet(key, path string, opts ...rjs.GetOption) (res interface{}, err error) {
+func (r *Handler) JSONGet(ctx context.Context, key, path string, opts ...rjs.GetOption) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONGet(key, path, opts...)
+	return r.implementation.JSONGet(ctx, key, path, opts...)
 }
 
 // JSONMGet used to get path values from multiple keys
@@ -93,11 +94,11 @@ func (r *Handler) JSONGet(key, path string, opts ...rjs.GetOption) (res interfac
 // ReJSON syntax:
 //
 //	JSON.MGET <key> [key ...] <path>
-func (r *Handler) JSONMGet(path string, keys ...string) (res interface{}, err error) {
+func (r *Handler) JSONMGet(ctx context.Context, path string, keys ...string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONMGet(path, keys...)
+	return r.implementation.JSONMGet(ctx, path, keys...)
 }
 
 // JSONDel to delete a json object
@@ -105,11 +106,11 @@ func (r *Handler) JSONMGet(path string, keys ...string) (res interface{}, err er
 // ReJSON syntax:
 //
 //	JSON.DEL <key> <path>
-func (r *Handler) JSONDel(key string, path string) (res interface{}, err error) {
+func (r *Handler) JSONDel(ctx context.Context, key string, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONDel(key, path)
+	return r.implementation.JSONDel(ctx, key, path)
 }
 
 // JSONType to get the type of key or member at path.
@@ -117,11 +118,11 @@ func (r *Handler) JSONDel(key string, path string) (res interface{}, err error) 
 // ReJSON syntax:
 //
 //	JSON.TYPE <key> [path]
-func (r *Handler) JSONType(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONType(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONType(key, path)
+	return r.implementation.JSONType(ctx, key, path)
 }
 
 // JSONNumIncrBy to increment a number by provided amount
@@ -129,11 +130,11 @@ func (r *Handler) JSONType(key, path string) (res interface{}, err error) {
 // ReJSON syntax:
 //
 //	JSON.NUMINCRBY <key> <path> <number>
-func (r *Handler) JSONNumIncrBy(key, path string, number int) (res interface{}, err error) {
+func (r *Handler) JSONNumIncrBy(ctx context.Context, key, path string, number int) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONNumIncrBy(key, path, number)
+	return r.implementation.JSONNumIncrBy(ctx, key, path, number)
 }
 
 // JSONNumMultBy to increment a number by provided amount
@@ -141,11 +142,11 @@ func (r *Handler) JSONNumIncrBy(key, path string, number int) (res interface{}, 
 // ReJSON syntax:
 //
 //	JSON.NUMMULTBY <key> <path> <number>
-func (r *Handler) JSONNumMultBy(key, path string, number int) (res interface{}, err error) {
+func (r *Handler) JSONNumMultBy(ctx context.Context, key, path string, number int) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONNumMultBy(key, path, number)
+	return r.implementation.JSONNumMultBy(ctx, key, path, number)
 }
 
 // JSONStrAppend to append a jsonstring to an existing member
@@ -153,11 +154,11 @@ func (r *Handler) JSONNumMultBy(key, path string, number int) (res interface{}, 
 // ReJSON syntax:
 //
 //	JSON.STRAPPEND <key> [path] <json-string>
-func (r *Handler) JSONStrAppend(key, path, jsonstring string) (res interface{}, err error) {
+func (r *Handler) JSONStrAppend(ctx context.Context, key, path, jsonstring string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONStrAppend(key, path, jsonstring)
+	return r.implementation.JSONStrAppend(ctx, key, path, jsonstring)
 }
 
 // JSONStrLen to return the length of a string member
@@ -165,11 +166,11 @@ func (r *Handler) JSONStrAppend(key, path, jsonstring string) (res interface{}, 
 // ReJSON syntax:
 //
 //	JSON.STRLEN <key> [path]
-func (r *Handler) JSONStrLen(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONStrLen(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONStrLen(key, path)
+	return r.implementation.JSONStrLen(ctx, key, path)
 }
 
 // JSONArrAppend to append json value into array at path
@@ -177,11 +178,11 @@ func (r *Handler) JSONStrLen(key, path string) (res interface{}, err error) {
 // ReJSON syntax:
 //
 //	JSON.ARRAPPEND <key> <path> <json> [json ...]
-func (r *Handler) JSONArrAppend(key, path string, values ...interface{}) (res interface{}, err error) {
+func (r *Handler) JSONArrAppend(ctx context.Context, key, path string, values ...interface{}) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrAppend(key, path, values...)
+	return r.implementation.JSONArrAppend(ctx, key, path, values...)
 }
 
 // JSONArrLen returns the length of the json array at path
@@ -189,11 +190,11 @@ func (r *Handler) JSONArrAppend(key, path string, values ...interface{}) (res in
 // ReJSON syntax:
 //
 //	JSON.ARRLEN <key> [path]
-func (r *Handler) JSONArrLen(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONArrLen(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrLen(key, path)
+	return r.implementation.JSONArrLen(ctx, key, path)
 }
 
 // JSONArrPop removes and returns element from the index in the array
@@ -202,11 +203,11 @@ func (r *Handler) JSONArrLen(key, path string) (res interface{}, err error) {
 // ReJSON syntax:
 //
 //	JSON.ARRPOP <key> [path [index]]
-func (r *Handler) JSONArrPop(key, path string, index int) (res interface{}, err error) {
+func (r *Handler) JSONArrPop(ctx context.Context, key, path string, index int) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrPop(key, path, index)
+	return r.implementation.JSONArrPop(ctx, key, path, index)
 }
 
 // JSONArrIndex returns the index of the json element provided and return -1 if element is not present
@@ -214,13 +215,13 @@ func (r *Handler) JSONArrPop(key, path string, index int) (res interface{}, err 
 // ReJSON syntax:
 //
 //	JSON.ARRINDEX <key> <path> <json-scalar> [start [stop]]
-func (r *Handler) JSONArrIndex(key, path string, jsonValue interface{}, optionalRange ...int) (
+func (r *Handler) JSONArrIndex(ctx context.Context, key, path string, jsonValue interface{}, optionalRange ...int) (
 	res interface{}, err error,
 ) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrIndex(key, path, jsonValue, optionalRange...)
+	return r.implementation.JSONArrIndex(ctx, key, path, jsonValue, optionalRange...)
 }
 
 // JSONArrTrim trims an array so that it contains only the specified inclusive range of elements
@@ -228,11 +229,11 @@ func (r *Handler) JSONArrIndex(key, path string, jsonValue interface{}, optional
 // ReJSON syntax:
 //
 //	JSON.ARRTRIM <key> <path> <start> <stop>
-func (r *Handler) JSONArrTrim(key, path string, start, end int) (res interface{}, err error) {
+func (r *Handler) JSONArrTrim(ctx context.Context, key, path string, start, end int) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrTrim(key, path, start, end)
+	return r.implementation.JSONArrTrim(ctx, key, path, start, end)
 }
 
 // JSONArrInsert inserts the json value(s) into the array at path before the index (shifts to the right).
@@ -240,11 +241,11 @@ func (r *Handler) JSONArrTrim(key, path string, start, end int) (res interface{}
 // ReJSON syntax:
 //
 //	JSON.ARRINSERT <key> <path> <index> <json> [json ...]
-func (r *Handler) JSONArrInsert(key, path string, index int, values ...interface{}) (res interface{}, err error) {
+func (r *Handler) JSONArrInsert(ctx context.Context, key, path string, index int, values ...interface{}) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONArrInsert(key, path, index, values...)
+	return r.implementation.JSONArrInsert(ctx, key, path, index, values...)
 }
 
 // JSONObjKeys returns the keys in the object that's referenced by path
@@ -252,11 +253,11 @@ func (r *Handler) JSONArrInsert(key, path string, index int, values ...interface
 // ReJSON syntax:
 //
 //	JSON.OBJKEYS <key> [path]
-func (r *Handler) JSONObjKeys(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONObjKeys(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONObjKeys(key, path)
+	return r.implementation.JSONObjKeys(ctx, key, path)
 }
 
 // JSONObjLen report the number of keys in the JSON Object at path in key
@@ -264,11 +265,11 @@ func (r *Handler) JSONObjKeys(key, path string) (res interface{}, err error) {
 // ReJSON syntax:
 //
 //	JSON.OBJLEN <key> [path]
-func (r *Handler) JSONObjLen(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONObjLen(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONObjLen(key, path)
+	return r.implementation.JSONObjLen(ctx, key, path)
 }
 
 // JSONDebug reports information
@@ -278,11 +279,11 @@ func (r *Handler) JSONObjLen(key, path string) (res interface{}, err error) {
 //	JSON.DEBUG <subcommand & arguments>
 //		JSON.DEBUG MEMORY <key> [path]	- report the memory usage in bytes of a value. path defaults to root if not provided.
 //		JSON.DEBUG HELP					- reply with a helpful message
-func (r *Handler) JSONDebug(subCmd rjs.DebugSubCommand, key, path string) (res interface{}, err error) {
+func (r *Handler) JSONDebug(ctx context.Context, subCmd rjs.DebugSubCommand, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONDebug(subCmd, key, path)
+	return r.implementation.JSONDebug(ctx, subCmd, key, path)
 }
 
 // JSONForget is an alias for JSONDel
@@ -290,11 +291,11 @@ func (r *Handler) JSONDebug(subCmd rjs.DebugSubCommand, key, path string) (res i
 // ReJSON syntax:
 //
 //	JSON.FORGET <key> [path]
-func (r *Handler) JSONForget(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONForget(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONForget(key, path)
+	return r.implementation.JSONForget(ctx, key, path)
 }
 
 // JSONResp returns the JSON in key in Redis Serialization Protocol (RESP).
@@ -302,9 +303,9 @@ func (r *Handler) JSONForget(key, path string) (res interface{}, err error) {
 // ReJSON syntax:
 //
 //	JSON.RESP <key> [path]
-func (r *Handler) JSONResp(key, path string) (res interface{}, err error) {
+func (r *Handler) JSONResp(ctx context.Context, key, path string) (res interface{}, err error) {
 	if r.clientName == rjs.ClientInactive {
 		return nil, rjs.ErrNoClientSet
 	}
-	return r.implementation.JSONResp(key, path)
+	return r.implementation.JSONResp(ctx, key, path)
 }

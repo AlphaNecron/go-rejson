@@ -20,7 +20,7 @@ func (r *Handler) SetContext(ctx context.Context) *Handler {
 		if old, ok := r.implementation.(*clients.GoRedis); ok {
 			return &Handler{
 				clientName:     r.clientName,
-				implementation: clients.NewGoRedisClient(ctx, old.Conn),
+				implementation: clients.NewGoRedisClient(old.Conn),
 			}
 		}
 	}
